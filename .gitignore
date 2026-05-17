@@ -47,3 +47,9 @@ Thumbs.db
 
 # data/ IS committed — static parquet files ship with the repo and are
 # refreshed by GitHub Actions commits. Do NOT add data/ to .gitignore.
+
+# Planning / instruction files — kept local, not pushed to GitHub
+CLAUDE.md
+plan.md
+phase-0-prompt.md
+.claude/
