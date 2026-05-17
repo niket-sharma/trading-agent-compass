@@ -1,0 +1,41 @@
+name: Refresh static data
+
+on:
+  schedule:
+    - cron: '0 6 * * 1-5'   # 06:00 UTC weekdays (~01:00-02:00 ET, pre-premarket)
+  workflow_dispatch:          # manual trigger from Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Refresh static data
+        env:
+          TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/refresh_static_data.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet; then
+            echo "No data changes — skipping commit."
+          else
+            git commit -m "chore: refresh static data $(date -u +%Y-%m-%d)"
+            git push
+          fi

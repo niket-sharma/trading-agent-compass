@@ -1,0 +1,128 @@
+# Strategy parameters for Trading Agent v1.
+# All thresholds tunable here — no code changes needed.
+
+# ──────────────────────────────────────────────
+# Regime classifier thresholds
+# Scoring rubric: each component returns a partial score in [-1, 1].
+# Composite score maps to regime via the breakpoints below.
+# ──────────────────────────────────────────────
+regime:
+  # NDX 200-day trend slope: annualized % change of the 200d regression slope
+  trend_slope:
+    strong_bull_threshold: 0.15   # slope > 15% → full bull
+    bull_threshold: 0.05          # slope > 5%  → bull
+    bear_threshold: -0.05         # slope < -5% → bear
+    strong_bear_threshold: -0.15  # slope < -15% → strong bear
+
+  # 50d vs 200d moving average cross state
+  ma_cross:
+    # Weight assigned to golden cross (+1) vs death cross (-1)
+    weight: 0.20
+
+  # VIX level thresholds
+  vix:
+    low: 15         # VIX < 15  → supportive (bull)
+    elevated: 20    # VIX 20-25 → neutral
+    high: 25        # VIX 25-35 → bear
+    extreme: 35     # VIX > 35  → strong bear
+    change_20d_weight: 0.10  # weight for 20-day VIX change component
+
+  # NDX drawdown from 52-week high
+  drawdown:
+    mild: -0.05     # < 5%  → no penalty
+    moderate: -0.10 # 5-10% → mild bear signal
+    deep: -0.20     # > 20% → strong bear signal
+
+  # Breadth proxy: % of single-name universe above 50d MA
+  breadth:
+    strong_bull: 0.80   # > 80% → bull
+    bull: 0.60          # 60-80% → mild bull
+    bear: 0.40          # 40-60% → neutral
+    strong_bear: 0.20   # < 20% → strong bear
+    weight: 0.15
+
+  # 10y-2y Treasury spread (yield curve)
+  yield_curve:
+    positive_threshold: 0.50   # spread > 50 bps → mild bull
+    negative_threshold: -0.25  # spread < -25 bps → bear (inversion)
+    weight: 0.10
+
+  # Sentiment composite (only when OpenAI key present)
+  sentiment:
+    weight: 0.15  # proportion of total composite score when key present
+
+  # Final composite → regime breakpoints (on -1 to +1 scale)
+  composite_breakpoints:
+    strong_bull: 0.60
+    bull: 0.20
+    neutral: -0.20
+    bear: -0.60
+    # below -0.60 → strong_bear
+
+# ──────────────────────────────────────────────
+# Bucket definitions
+# ──────────────────────────────────────────────
+buckets:
+  base:
+    tickers: [QQQ]
+    horizon: years
+    purpose: Strategic long-term compounding
+  leveraged_2x:
+    tickers: [QLD]
+    horizon: months_to_years
+    purpose: Moderate leveraged growth
+  leveraged_3x_long:
+    tickers: [TQQQ]
+    horizon: years
+    purpose: Aggressive secular growth, rarely trimmed
+  leveraged_3x_medium:
+    tickers: [TQQQ]
+    horizon: months
+    purpose: Trend cycle swings (1-3 months)
+  leveraged_3x_short:
+    tickers: [TQQQ, SQQQ]
+    horizon: days_to_weeks
+    purpose: Tactical volatility harvesting
+
+# ──────────────────────────────────────────────
+# Signal weights (Phase 3; placeholders now)
+# ──────────────────────────────────────────────
+signal_weights:
+  technical_score: 0.40
+  regime_alignment: 0.35
+  sentiment_score: 0.15    # excluded when no OpenAI key
+  momentum_1m: 0.10
+
+# ──────────────────────────────────────────────
+# Safety overlays (Phase 3)
+# ──────────────────────────────────────────────
+safety:
+  consecutive_loss_throttle: 3   # reduce size after N consecutive losses
+  vix_throttle_threshold: 30     # reduce size when VIX > this
+  confidence_throttle_zone: 0.10 # reduce size when regime score within this of a boundary
+
+# ──────────────────────────────────────────────
+# Backtest defaults (Phase 2)
+# ──────────────────────────────────────────────
+backtest:
+  default_start: "2015-01-01"
+  default_end: "2024-12-31"
+  initial_capital: 100000
+  commission_pct: 0.0      # $0 commission
+  slippage_bps:
+    QQQ: 1
+    QLD: 1
+    TQQQ: 3
+    SQQQ: 3
+    default: 2
+  recurring_contribution:
+    amount: 1000
+    frequency: monthly
+
+# ──────────────────────────────────────────────
+# Deployment coordinates (used by freshness banner in Phase 1)
+# ──────────────────────────────────────────────
+deployment:
+  github_owner: niket-sharma      # owner: update before deploy
+  github_repo: trading-agent-compass
+  refresh_workflow_filename: refresh-data.yml

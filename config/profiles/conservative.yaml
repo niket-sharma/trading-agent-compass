@@ -1,0 +1,62 @@
+name: conservative
+description: Capital preservation with modest growth. Avoids leveraged ETFs in most regimes.
+
+risk_level: 3           # 1-10 scale
+aggression: 2           # 1-10 scale
+max_leverage: 1.0       # never hold leveraged ETFs
+volatility_tolerance: low
+trading_intensity: passive
+
+# Tax rates (US defaults)
+st_tax_rate: 0.32       # short-term capital gains (ordinary income rate)
+lt_tax_rate: 0.15       # long-term capital gains
+
+# Recurring contribution
+recurring_contribution:
+  amount: 1000
+  frequency: monthly
+
+# Portfolio constraints
+constraints:
+  - max_single_name_pct: 0.10      # no single name > 10% of portfolio
+  - max_leveraged_pct: 0.00        # no leveraged ETFs at all
+  - min_cash_pct: 0.10             # always hold at least 10% cash
+
+# Bucket target weights by regime (sum to 1.0, cash is implied)
+# Strong Bull: still conservative, add slightly to QQQ
+allocation_by_regime:
+  strong_bull:
+    base: 0.70
+    leveraged_2x: 0.00
+    leveraged_3x_long: 0.00
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.00
+    cash: 0.30
+  bull:
+    base: 0.65
+    leveraged_2x: 0.00
+    leveraged_3x_long: 0.00
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.00
+    cash: 0.35
+  neutral:
+    base: 0.55
+    leveraged_2x: 0.00
+    leveraged_3x_long: 0.00
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.00
+    cash: 0.45
+  bear:
+    base: 0.30
+    leveraged_2x: 0.00
+    leveraged_3x_long: 0.00
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.00
+    cash: 0.70
+  strong_bear:
+    base: 0.10
+    leveraged_2x: 0.00
+    leveraged_3x_long: 0.00
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.00
+    cash: 0.90

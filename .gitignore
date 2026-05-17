@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/*.html
+
+# Secrets — NEVER committed
+.streamlit/secrets.toml
+
+# Streamlit Cloud deploys secrets.toml.example (safe template, no real values)
+# Real secrets go in the Streamlit Cloud dashboard or local .streamlit/secrets.toml
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checking
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# data/ IS committed — static parquet files ship with the repo and are
+# refreshed by GitHub Actions commits. Do NOT add data/ to .gitignore.

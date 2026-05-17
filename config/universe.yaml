@@ -1,0 +1,23 @@
+etfs:
+  - QQQ
+  - QLD
+  - TQQQ
+  - SQQQ
+
+single_names:
+  - MSFT
+  - GOOGL
+  - NVDA
+  - AAPL
+  - AMZN
+  - META
+
+benchmarks:
+  - SPY
+  - VOO
+
+# NDX proxy for regime computation (yfinance symbol)
+ndx_symbol: "^NDX"
+
+# VIX symbol
+vix_symbol: "^VIX"

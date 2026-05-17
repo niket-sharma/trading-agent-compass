@@ -1,0 +1,61 @@
+name: moderate
+description: Balanced growth and risk. Uses 2x leverage in bull regimes, avoids 3x except long-term strategic.
+
+risk_level: 6           # 1-10 scale
+aggression: 5           # 1-10 scale
+max_leverage: 2.0       # up to 2x
+volatility_tolerance: medium
+trading_intensity: moderate
+
+# Tax rates (US defaults)
+st_tax_rate: 0.32
+lt_tax_rate: 0.15
+
+# Recurring contribution
+recurring_contribution:
+  amount: 1000
+  frequency: monthly
+
+# Portfolio constraints
+constraints:
+  - max_single_name_pct: 0.15
+  - max_leveraged_pct: 0.30        # total leveraged ETF exposure < 30%
+  - min_cash_pct: 0.05
+
+# Bucket target weights by regime
+allocation_by_regime:
+  strong_bull:
+    base: 0.45
+    leveraged_2x: 0.25
+    leveraged_3x_long: 0.10
+    leveraged_3x_medium: 0.10
+    leveraged_3x_short: 0.05
+    cash: 0.05
+  bull:
+    base: 0.50
+    leveraged_2x: 0.20
+    leveraged_3x_long: 0.10
+    leveraged_3x_medium: 0.05
+    leveraged_3x_short: 0.00
+    cash: 0.15
+  neutral:
+    base: 0.55
+    leveraged_2x: 0.10
+    leveraged_3x_long: 0.10
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.00
+    cash: 0.25
+  bear:
+    base: 0.35
+    leveraged_2x: 0.00
+    leveraged_3x_long: 0.05
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.00
+    cash: 0.60
+  strong_bear:
+    base: 0.15
+    leveraged_2x: 0.00
+    leveraged_3x_long: 0.00
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.05  # SQQQ hedge
+    cash: 0.80

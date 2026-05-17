@@ -1,0 +1,61 @@
+name: aggressive
+description: Maximum growth with 3x leverage. High drawdowns accepted. For experienced investors who understand leveraged ETF decay.
+
+risk_level: 9           # 1-10 scale
+aggression: 9           # 1-10 scale
+max_leverage: 3.0       # up to 3x
+volatility_tolerance: high
+trading_intensity: active
+
+# Tax rates (US defaults)
+st_tax_rate: 0.32
+lt_tax_rate: 0.15
+
+# Recurring contribution
+recurring_contribution:
+  amount: 1000
+  frequency: monthly
+
+# Portfolio constraints
+constraints:
+  - max_single_name_pct: 0.20
+  - max_leveraged_pct: 0.70
+  - min_cash_pct: 0.02
+
+# Bucket target weights by regime
+allocation_by_regime:
+  strong_bull:
+    base: 0.20
+    leveraged_2x: 0.15
+    leveraged_3x_long: 0.25
+    leveraged_3x_medium: 0.25
+    leveraged_3x_short: 0.10
+    cash: 0.05
+  bull:
+    base: 0.30
+    leveraged_2x: 0.15
+    leveraged_3x_long: 0.25
+    leveraged_3x_medium: 0.15
+    leveraged_3x_short: 0.05
+    cash: 0.10
+  neutral:
+    base: 0.40
+    leveraged_2x: 0.10
+    leveraged_3x_long: 0.20
+    leveraged_3x_medium: 0.05
+    leveraged_3x_short: 0.00
+    cash: 0.25
+  bear:
+    base: 0.25
+    leveraged_2x: 0.00
+    leveraged_3x_long: 0.10
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.05  # SQQQ hedge
+    cash: 0.60
+  strong_bear:
+    base: 0.10
+    leveraged_2x: 0.00
+    leveraged_3x_long: 0.00
+    leveraged_3x_medium: 0.00
+    leveraged_3x_short: 0.20  # SQQQ hedge
+    cash: 0.70
