@@ -1,5 +1,7 @@
 # Trading Agent Compass
 
+**Author:** Niket Sharma (sharma.niket@gmail.com)
+
 Personal advisory-only trading assistant. Regime-based signals for QQQ / QLD / TQQQ / SQQQ and a handful of single names.
 
 **Advisory only — this system never places orders.**
