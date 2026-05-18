@@ -53,3 +53,5 @@ CLAUDE.md
 plan.md
 phase-0-prompt.md
 .claude/
+
+.env
