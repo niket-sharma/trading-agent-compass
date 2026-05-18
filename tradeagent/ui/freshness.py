@@ -8,21 +8,51 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import httpx
 import pandas as pd
 import streamlit as st
 
 from tradeagent.data.store import get_latest_data_date
+from tradeagent.secrets import get_secret
 
 
 @st.cache_data(ttl=900)  # 15 minutes
 def _fetch_last_workflow_run() -> datetime | None:
     """Query GitHub for the most recent successful run of the refresh workflow.
 
-    Phase 0: always returns None. The banner handles None gracefully (shows '?').
-    Phase 1 implements this with an authenticated GitHub REST API call using
-    st.secrets['GITHUB_TOKEN'] — required because the repo is private.
+    Requires GITHUB_TOKEN (fine-grained PAT, Actions: Read-only) in st.secrets.
+    Falls back to None on any error — the banner shows '?' gracefully.
     """
-    return None
+    from tradeagent.config import get_config
+
+    token = get_secret("GITHUB_TOKEN", allow_session=False)
+    if not token:
+        return None
+
+    try:
+        cfg = get_config()
+        dep = cfg.strategy.deployment
+        url = (
+            f"https://api.github.com/repos/{dep.github_owner}/{dep.github_repo}"
+            f"/actions/workflows/{dep.refresh_workflow_filename}"
+            "/runs?per_page=1&status=success"
+        )
+        r = httpx.get(
+            url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+            timeout=5.0,
+        )
+        r.raise_for_status()
+        runs = r.json().get("workflow_runs", [])
+        if not runs:
+            return None
+        return datetime.fromisoformat(runs[0]["updated_at"].replace("Z", "+00:00"))
+    except Exception:
+        return None
 
 
 def _trading_days_between(a: pd.Timestamp, b: pd.Timestamp) -> int:
@@ -66,6 +96,6 @@ def render_freshness_banner() -> None:
         st.info(msg)
         if last_run is None:
             st.caption(
-                "i Live refresh timestamp coming in Phase 1 - requires authenticated "
-                "API call for private repos."
+                "Live refresh timestamp requires GITHUB_TOKEN in secrets "
+                "(fine-grained PAT, Actions: Read-only)."
             )
