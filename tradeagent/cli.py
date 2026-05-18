@@ -27,13 +27,21 @@ import structlog  # noqa: E402
 
 log = structlog.get_logger(__name__)
 
+_DEFAULT_SINCE_STR = "2010-01-01"
+
+
+def _parse_date(s: str) -> date:
+    try:
+        return date.fromisoformat(s)
+    except ValueError:
+        raise typer.BadParameter(f"Expected YYYY-MM-DD, got {s!r}") from None
+
 app = typer.Typer(help="Trading Agent CLI — manage static data and config.")
 refresh_app = typer.Typer(help="Refresh static data.")
 app.add_typer(refresh_app, name="refresh")
 
 console = Console()
 
-_DEFAULT_SINCE = date(2010, 1, 1)
 
 
 def _load_universe() -> list[str]:
@@ -77,16 +85,17 @@ app.command(name="config")(config_validate)
 def refresh_prices(
     ticker: str | None = typer.Option(None, "--ticker", "-t", help="Single ticker"),
     universe: bool = typer.Option(False, "--universe", "-u", help="All universe tickers"),
-    since: date = typer.Option(_DEFAULT_SINCE, "--since", help="Fetch bars since this date"),  # noqa: B008
+    since: str = typer.Option(_DEFAULT_SINCE_STR, "--since", help="Fetch bars since this date (YYYY-MM-DD)"),
 ) -> None:
     """Fetch daily price bars from yfinance and save to data/prices/."""
     from tradeagent.data.prices import fetch_daily_bars, fetch_dividends, fetch_splits
     from tradeagent.data.store import save_corporate_actions, save_prices
 
+    since_date = _parse_date(since)
     tickers = _resolve_tickers(ticker, universe)
     for t in tickers:
-        console.print(f"[cyan]prices[/cyan] {t} since {since}...")
-        df = fetch_daily_bars(t, since)
+        console.print(f"[cyan]prices[/cyan] {t} since {since_date}...")
+        df = fetch_daily_bars(t, since_date)
         if not df.empty:
             save_prices(t, df)
             console.print(f"  saved {len(df)} rows, last date {df['date'].max().date()}")
@@ -160,14 +169,14 @@ def refresh_news(
 
 @refresh_app.command(name="macro")
 def refresh_macro(
-    since: date = typer.Option(_DEFAULT_SINCE, "--since"),  # noqa: B008
+    since: str = typer.Option(_DEFAULT_SINCE_STR, "--since", help="Fetch data since this date (YYYY-MM-DD)"),
 ) -> None:
     """Fetch macro series from FRED and VIX from yfinance."""
     from tradeagent.data.macro import fetch_common_macro
     from tradeagent.data.store import save_macro
 
     console.print("[cyan]macro[/cyan] fetching common macro series...")
-    series = fetch_common_macro(since)
+    series = fetch_common_macro(_parse_date(since))
     for series_id, df in series.items():
         if not df.empty:
             save_macro(series_id, df)
@@ -183,7 +192,7 @@ def refresh_macro(
 
 @refresh_app.command(name="all")
 def refresh_all(
-    since: date = typer.Option(_DEFAULT_SINCE, "--since"),  # noqa: B008
+    since: str = typer.Option(_DEFAULT_SINCE_STR, "--since", help="Fetch data since this date (YYYY-MM-DD)"),
     news_days: int = typer.Option(7, "--news-days"),
 ) -> None:
     """Refresh prices, fundamentals, macro, and news for the full universe."""
