@@ -1,3 +1,4 @@
+
 """Freshness banner: shows data date and last-refresh timestamp on every page.
 
 Phase 0: data date only; last-refresh shows "?" (stub).
