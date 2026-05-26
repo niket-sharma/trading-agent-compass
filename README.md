@@ -1,6 +1,5 @@
 # Trading Agent Compass
 
-**Author:** Niket Sharma · [sharma.niket@gmail.com](mailto:sharma.niket@gmail.com)
 
 Personal advisory-only trading assistant. Regime-based allocation signals for QQQ / QLD / TQQQ / SQQQ and a handful of single names, deployed on Streamlit Community Cloud.
 
@@ -245,6 +244,8 @@ tradectl status                   # show data date and row counts
 ---
 
 ## Disclaimers
+
+**Author:** Niket Sharma · [sharma.niket@gmail.com](mailto:sharma.niket@gmail.com)
 
 - **Advisory only.** This system never places orders.
 - **Not financial advice.** Use your own judgment.
